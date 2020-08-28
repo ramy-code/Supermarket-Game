@@ -195,7 +195,7 @@ function play(){
         var width = (600 - (10*selectedRule.left.length)) / selectedRule.left.length;
         height = width;
         var image = document.createElement("img");
-        image.src="assets/"+selectedRule.left[i]+".png";
+        image.src="assets/sprites/"+selectedRule.left[i]+".png";
         container.appendChild(image);
         shelf_1.appendChild(container);
     }
@@ -246,7 +246,7 @@ function play(){
         height = width;
         var image = document.createElement("img");
         var answer = answers.splice(index,1);
-        image.src="assets/"+answer+".png";
+        image.src="assets/sprites/"+answer+".png";
         image.id=answer;
         image.onclick= function(){
             var yourAnswer = String(this.id);

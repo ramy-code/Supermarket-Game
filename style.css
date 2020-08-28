@@ -9,8 +9,8 @@ body{
 }
 @font-face {
     font-family: 'munroregular';
-    src: url('munro-webfont.woff2') format('woff2'),
-         url('munro-webfont.woff') format('woff');
+    src: url('assets/fonts/munro-webfont.woff2') format('woff2'),
+         url('assets/fonts/munro-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 
