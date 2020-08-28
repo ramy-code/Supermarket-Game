@@ -1,8 +1,7 @@
-function play(){
-    document.getElementsByClassName("gameContainer")[0].style.display = document.getElementsByClassName("gameContainer")[0].style.display == "none" ? "inherit" : "none";
-}
-let minSup = 0.01;
-let minConf = 0.25;
+
+let minSup = 0.005;
+let minConf = 0.2;
+var global_score=0;
 
 function ItemSet(items) {
     this.items = items;
@@ -131,8 +130,8 @@ function APriori() {
                 rules = rules.concat(lastGeneratedRules);
         }
     }
-
     console.log(rules);
+    return rules;
 }
 
 function generateRules(ItemSet) {
@@ -159,7 +158,6 @@ function generateRules(ItemSet) {
             console.log(left + '-->' + right + '    confiance: ' + rule.confidence);
         }
     }
-
     return rules;
 }
 
@@ -170,5 +168,112 @@ function toBinaryString(n, length) {
     
     return result;
 }
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+function play(){
+    /*document.getElementsByClassName("gameContainer")[0].style.display = document.getElementsByClassName("gameContainer")[0].style.display == "none" ? "inherit" : "none";*/
+    let selectedRule = rules[getRandomInt(0, rules.length)];
+    let answer_1 = selectedRule.right[0];
+    let score_1 = Math.round(selectedRule.confidence * 100);
+    console.log(selectedRule.left);
+    console.log(answer_1);
+    console.log(Math.round(score_1));
+    /*Creation interface*/
+    var gameContainer = document.createElement("div");
+    gameContainer.className+="gameContainer";
+    var p1 = document.createElement("p");
+    p1.innerHTML="This is what your customer bought :";
+    gameContainer.appendChild(p1);
+    var shelf_1=document.createElement("div");
+    shelf_1.className+="shelf"
+    for(i=0;i<selectedRule.left.length;i++){
+        var container = document.createElement("div");
+        container.className="productContainer";
+        var width = (600 - (10*selectedRule.left.length)) / selectedRule.left.length;
+        height = width;
+        var image = document.createElement("img");
+        image.src="assets/"+selectedRule.left[i]+".png";
+        container.appendChild(image);
+        shelf_1.appendChild(container);
+    }
+    gameContainer.appendChild(shelf_1);
+    document.body.appendChild(gameContainer);
+    
+    //Sélection de la réponse 2
+    let answer_2 = null;
 
-APriori();
+    do{
+        answer_2 = data[0][getRandomInt(0, data[0].length)];
+        console.log(answer_2);
+    }while(answer_2 == answer_1 || selectedRule.left.indexOf(answer_2) != -1)
+
+    let score_2 = calculateSupport(selectedRule.left.concat(answer_2))/calculateSupport(selectedRule.left);
+    //|| calculateSupport(selectedRule.left.concat(answer_2)) < minSup
+    if(score_2 < minConf)
+        score_2 = 0;
+    score_2 = Math.round(100*score_2);
+    console.log(score_2);
+
+
+    //Sélection de la réponse 3
+    let answer_3 = null;
+
+    do{
+        answer_3 = data[0][getRandomInt(0, data[0].length)];
+        console.log(answer_3);
+    }while(answer_3 == answer_1 || answer_3 == answer_2 || selectedRule.left.indexOf(answer_3) != -1)
+
+    let score_3 = calculateSupport(selectedRule.left.concat(answer_3))/calculateSupport(selectedRule.left);
+    if(score_3 < minConf)
+        score_3 = 0;
+
+    score_3 = Math.round(100*score_3)
+    let answers = [answer_1,answer_2,answer_3]
+    console.log(score_3);
+    var p2 = document.createElement("p");
+    p2.innerHTML="What do you think he should buy next ?";
+    gameContainer.appendChild(p2);
+    var shelf_2=document.createElement("div");
+    shelf_2.className+="shelf"
+    for(i=0;i<3;i++){
+        var index = Math.floor(Math.random() * Math.floor(answers.length));
+        var container = document.createElement("div");
+        container.className="productContainer";
+        var width = (600 - (10*selectedRule.left.length)) / selectedRule.left.length;
+        height = width;
+        var image = document.createElement("img");
+        var answer = answers.splice(index,1);
+        image.src="assets/"+answer+".png";
+        image.id=answer;
+        image.onclick= function(){
+            var yourAnswer = String(this.id);
+            if(yourAnswer == answer_1){
+                global_score += score_1;
+            }
+            if(yourAnswer == answer_2){
+                global_score += score_2;
+            }
+            if(yourAnswer == answer_3){
+                global_score += score_3;
+            }
+
+            var score = document.getElementById("score");
+            score.innerHTML="Score :"+ global_score;
+            var removed = document.getElementsByClassName("gameContainer")[0];
+            document.body.removeChild(removed);
+        };
+        container.appendChild(image);
+        shelf_2.appendChild(container);
+    }
+    gameContainer.appendChild(shelf_2);
+    document.body.appendChild(gameContainer);
+    
+}
+function updateScore(){
+
+}
+let rules = APriori();
+console.log("done");
